@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Platform, Pressable, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, Text, type TextStyle, View } from 'react-native';
 
 import { usePalette } from './palette';
 import { colors, fonts } from './theme';
@@ -8,6 +8,8 @@ const OUTLINE = '#4A3530';
 const NOSE = '#F7C65C';
 const CHEEK = '#FFB2C0';
 const native = Platform.OS !== 'web';
+// 웹은 한글을 글자 단위로 줄바꿈해서 어절 단위로 끊도록 따로 지정한다.
+const keepWords = (Platform.OS === 'web' ? { wordBreak: 'keep-all' } : null) as TextStyle | null;
 
 function useReduceMotion(): boolean {
   const [reduce, setReduce] = useState(false);
@@ -27,10 +29,26 @@ function useReduceMotion(): boolean {
   return reduce;
 }
 
-export function Bean({ size = 72, color, sleepy = false }: { size?: number; color?: string; sleepy?: boolean }) {
+export function Bean({
+  size = 72,
+  color,
+  sleepy = false,
+  lines,
+}: {
+  size?: number;
+  color?: string;
+  sleepy?: boolean;
+  /** 있으면 누를 때마다 이 중 하나를 말풍선으로 띄운다. */
+  lines?: readonly string[];
+}) {
   const palette = usePalette();
   const fill = color ?? palette.soft;
   const reduce = useReduceMotion();
+  const [speech, setSpeech] = useState<string | null>(null);
+  const [bubble] = useState(() => new Animated.Value(0));
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(hideTimer.current), []);
 
   const [breath] = useState(() => new Animated.Value(0));
   const [sway] = useState(() => new Animated.Value(0));
@@ -87,7 +105,27 @@ export function Bean({ size = 72, color, sleepy = false }: { size?: number; colo
     };
   }, [reduce, sleepy, breath, sway, blink, wave, snooze]);
 
+  const speak = () => {
+    if (!lines?.length) return;
+    const choices = lines.length > 1 ? lines.filter((item) => item !== speech) : lines;
+    setSpeech(choices[Math.floor(Math.random() * choices.length)]);
+    clearTimeout(hideTimer.current);
+    bubble.stopAnimation();
+    if (reduce) {
+      bubble.setValue(1);
+    } else {
+      bubble.setValue(0);
+      Animated.spring(bubble, { toValue: 1, friction: 5, tension: 140, useNativeDriver: native }).start();
+    }
+    hideTimer.current = setTimeout(() => {
+      Animated.timing(bubble, { toValue: 0, duration: reduce ? 0 : 220, useNativeDriver: native }).start(({ finished }) => {
+        if (finished) setSpeech(null);
+      });
+    }, 3000);
+  };
+
   const giggle = () => {
+    speak();
     if (reduce) return;
     Animated.sequence([
       Animated.timing(hop, { toValue: 1, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: native }),
@@ -272,6 +310,59 @@ export function Bean({ size = 72, color, sleepy = false }: { size?: number; colo
           </Animated.Text>
         ) : null}
       </Animated.View>
+
+      {speech ? (
+        <Animated.View
+          pointerEvents="none"
+          accessibilityLiveRegion="polite"
+          style={{
+            position: 'absolute',
+            right: s + 4,
+            top: s * 0.12,
+            width: 150,
+            zIndex: 10,
+            opacity: bubble,
+            transform: [
+              { translateX: bubble.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) },
+              { scale: bubble.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+            ],
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 18,
+              paddingHorizontal: 13,
+              paddingVertical: 9,
+              borderWidth: 2,
+              borderColor: palette.soft,
+              shadowColor: palette.accentDark,
+              shadowOpacity: 0.18,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 4,
+            }}
+          >
+            <Text lineBreakStrategyIOS="hangul-word" style={[{ fontFamily: fonts.cute, fontSize: 15, lineHeight: 20, color: colors.ink }, keepWords]}>
+              {speech}
+            </Text>
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              right: -5,
+              top: 16,
+              width: 12,
+              height: 12,
+              backgroundColor: '#FFFFFF',
+              borderTopWidth: 2,
+              borderRightWidth: 2,
+              borderColor: palette.soft,
+              transform: [{ rotate: '45deg' }],
+            }}
+          />
+        </Animated.View>
+      ) : null}
     </Pressable>
   );
 }

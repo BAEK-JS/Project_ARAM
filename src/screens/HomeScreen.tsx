@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ageFromBirth, formatKoreanDate, gestationalAge, memoKey, postpartumStage, trimesterLabel } from '../pregnancy';
+import { ageFromBirth, formatKoreanDate, gestationalAge, memoKey, postpartumStage, trimesterLabel, withCuteI } from '../pregnancy';
 import { useAram } from '../store';
 import { sizeForWeek, tipForWeek } from '../tips';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { babyLines } from '../babyTalk';
 import { usePalette } from '../palette';
 import { colors, fonts, radius, shadow } from '../theme';
 import { Badge, Bean, Blob, Card, Title } from '../ui';
@@ -71,14 +72,14 @@ export function HomeScreen({ onNavigate, onOpenSettings }: { onNavigate: (tab: T
               </Text>
             </View>
             <View style={styles.beanHalo}>
-              <Bean size={84} color={palette.bean} sleepy={Boolean(born)} />
+              <Bean size={84} color={palette.bean} sleepy={Boolean(born)} lines={babyLines(baby, Boolean(born))} />
             </View>
           </View>
           {!born && !age.beforeStart ? (
             <>
               <View style={styles.sizeBubble}>
                 <Text style={styles.sizeText}>
-                  지금 {baby}는 <Text style={[styles.sizeStrong, { color: palette.accentDark }]}>{sizeForWeek(age.week)}</Text>만 해요
+                  지금 {withCuteI(baby)}는 <Text style={[styles.sizeStrong, { color: palette.accentDark }]}>{sizeForWeek(age.week)}</Text>만 해요
                 </Text>
               </View>
               <View style={styles.track}>
@@ -179,8 +180,8 @@ const styles = StyleSheet.create({
   detail: { color: 'rgba(255,255,255,0.92)', fontSize: 16, fontFamily: fonts.cute },
   beanHalo: { width: 116, height: 116, borderRadius: 58, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)' },
   sizeBubble: { backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 18, paddingHorizontal: 16, paddingVertical: 12 },
-  sizeText: { color: colors.ink, fontSize: 15 },
-  sizeStrong: { fontFamily: fonts.cute, color: colors.accentDark, fontSize: 18 },
+  sizeText: { color: colors.ink, fontFamily: fonts.cute, fontSize: 18, lineHeight: 26 },
+  sizeStrong: { fontFamily: fonts.cute, color: colors.accentDark, fontSize: 22, lineHeight: 28 },
   track: { height: 8, backgroundColor: 'rgba(255,255,255,0.35)', borderRadius: 99, overflow: 'hidden' },
   fill: { height: 8, backgroundColor: '#FFFFFF', borderRadius: 99 },
   due: { color: 'rgba(255,255,255,0.92)', fontSize: 14 },

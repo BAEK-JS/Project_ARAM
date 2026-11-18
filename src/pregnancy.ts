@@ -186,6 +186,16 @@ export function memoKey(age: GestationalAge | null, birthRecorded: boolean, birt
   return `week:${Math.max(age?.week ?? 0, 0)}`;
 }
 
+/** 마지막 글자에 받침이 있으면 태명 뒤에 '이'를 붙인다. 아람 → 아람이, 하늘 → 하늘이, 콩이 → 콩이 */
+export function withCuteI(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return trimmed;
+  const last = trimmed.charCodeAt(trimmed.length - 1);
+  if (last < 0xac00 || last > 0xd7a3) return trimmed;
+  const hasBatchim = (last - 0xac00) % 28 !== 0;
+  return hasBatchim ? `${trimmed}이` : trimmed;
+}
+
 export function dueDateInRange(dueDate: string, today = new Date()): string | null {
   const due = parseISODate(dueDate);
   if (!due) return '예정일은 2027-05-15처럼 숫자로 적어 주세요.';
