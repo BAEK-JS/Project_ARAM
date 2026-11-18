@@ -47,13 +47,78 @@ export function Blob({ size, color, style }: { size: number; color: string; styl
   return <View pointerEvents="none" style={[{ position: 'absolute', width: size, height: size, borderRadius: size, backgroundColor: color }, style]} />;
 }
 
+function Cloud({ size, color, style }: { size: number; color: string; style?: ViewStyle }) {
+  const puff = (w: number, h: number, left: number, top: number) => (
+    <View style={{ position: 'absolute', left, top, width: w, height: h, borderRadius: h, backgroundColor: color }} />
+  );
+  return (
+    <View pointerEvents="none" style={[{ position: 'absolute', width: size, height: size * 0.55 }, style]}>
+      {puff(size * 0.42, size * 0.34, size * 0.08, size * 0.14)}
+      {puff(size * 0.52, size * 0.4, size * 0.28, size * 0.02)}
+      {puff(size * 0.38, size * 0.3, size * 0.56, size * 0.16)}
+      {puff(size * 0.78, size * 0.28, size * 0.12, size * 0.26)}
+    </View>
+  );
+}
+
+function Dot({ size, color, style }: { size: number; color: string; style?: ViewStyle }) {
+  return <View pointerEvents="none" style={[{ position: 'absolute', width: size, height: size, borderRadius: size, backgroundColor: color }, style]} />;
+}
+
+function Star({ size, color, style }: { size: number; color: string; style?: ViewStyle }) {
+  const arm = { position: 'absolute' as const, backgroundColor: color, borderRadius: size };
+  return (
+    <View pointerEvents="none" style={[{ position: 'absolute', width: size, height: size }, style]}>
+      <View style={[arm, { left: size * 0.38, top: 0, width: size * 0.24, height: size }]} />
+      <View style={[arm, { left: 0, top: size * 0.38, width: size, height: size * 0.24 }]} />
+      <View style={[arm, { left: size * 0.18, top: size * 0.18, width: size * 0.64, height: size * 0.64, borderRadius: size, transform: [{ rotate: '45deg' }], opacity: 0.9 }]} />
+    </View>
+  );
+}
+
+function Heart({ size, color, style }: { size: number; color: string; style?: ViewStyle }) {
+  return (
+    <View pointerEvents="none" style={[{ position: 'absolute', width: size, height: size }, style]}>
+      <View style={{ position: 'absolute', left: 0, top: size * 0.18, width: size * 0.58, height: size * 0.58, borderRadius: size, backgroundColor: color }} />
+      <View style={{ position: 'absolute', right: 0, top: size * 0.18, width: size * 0.58, height: size * 0.58, borderRadius: size, backgroundColor: color }} />
+      <View style={{ position: 'absolute', left: size * 0.08, top: size * 0.34, width: size * 0.84, height: size * 0.66, borderBottomLeftRadius: size, borderBottomRightRadius: size, backgroundColor: color, transform: [{ rotate: '0deg' }] }} />
+    </View>
+  );
+}
+
 export function Backdrop({ children }: { children: ReactNode }) {
   const palette = usePalette();
+  const [a, b, c, d] = palette.motifs;
   return (
-    <LinearGradient colors={palette.page} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.backdrop}>
-      <Blob size={340} color={palette.blobs[0]} style={{ top: -140, right: -120 }} />
-      <Blob size={260} color={palette.blobs[1]} style={{ top: 260, left: -150 }} />
-      <Blob size={300} color={palette.blobs[2]} style={{ bottom: -120, right: -100 }} />
+    <LinearGradient colors={palette.page} locations={[0, 0.35, 0.7, 1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={styles.backdrop}>
+      <Blob size={320} color={palette.blobs[0]} style={{ top: -150, right: -120 }} />
+      <Blob size={260} color={palette.blobs[1]} style={{ top: 240, left: -140 }} />
+      <Blob size={300} color={palette.blobs[2]} style={{ bottom: -150, right: -100 }} />
+
+      <Cloud size={200} color="rgba(255,255,255,0.88)" style={{ top: 28, left: -40 }} />
+      <Cloud size={150} color="rgba(255,255,255,0.82)" style={{ top: 108, right: -30 }} />
+      <Cloud size={170} color="rgba(255,255,255,0.84)" style={{ bottom: 180, left: -52 }} />
+      <Cloud size={130} color="rgba(255,255,255,0.8)" style={{ bottom: 78, right: 12 }} />
+
+      <Dot size={12} color={a} style={{ top: 84, left: 46, opacity: 0.7 }} />
+      <Dot size={8} color={b} style={{ top: 156, left: 24, opacity: 0.65 }} />
+      <Dot size={14} color={c} style={{ top: 204, right: 30, opacity: 0.62 }} />
+      <Dot size={9} color={d} style={{ top: 318, left: 58, opacity: 0.68 }} />
+      <Dot size={11} color={a} style={{ top: 410, right: 48, opacity: 0.6 }} />
+      <Dot size={7} color={b} style={{ bottom: 248, left: 36, opacity: 0.66 }} />
+      <Dot size={13} color={c} style={{ bottom: 148, right: 68, opacity: 0.58 }} />
+      <Dot size={8} color={d} style={{ bottom: 310, right: 24, opacity: 0.64 }} />
+      <Dot size={6} color={a} style={{ top: 250, right: 16, opacity: 0.55 }} />
+      <Dot size={10} color={b} style={{ top: 500, left: 18, opacity: 0.55 }} />
+
+      <Star size={18} color={c} style={{ top: 64, right: 54, opacity: 0.72 }} />
+      <Star size={14} color={a} style={{ top: 276, left: 18, opacity: 0.62 }} />
+      <Star size={16} color={b} style={{ bottom: 220, right: 36, opacity: 0.68 }} />
+      <Star size={12} color={d} style={{ top: 470, right: 90, opacity: 0.55 }} />
+      <Heart size={20} color={a} style={{ top: 176, left: 64, opacity: 0.58 }} />
+      <Heart size={16} color={palette.ornament === 'curl' ? b : a} style={{ bottom: 126, left: 84, opacity: 0.52 }} />
+      <Heart size={14} color={c} style={{ top: 350, right: 18, opacity: 0.55 }} />
+
       {children}
     </LinearGradient>
   );
