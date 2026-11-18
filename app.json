@@ -1,17 +1,22 @@
 {
   "expo": {
-    "name": "Project_ARAM",
-    "slug": "Project_ARAM",
+    "name": "아람",
+    "slug": "aram",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F4EFE8",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "초음파와 아기 사진을 우리 기록에 저장해요.",
+        "NSCameraUsageDescription": "기록용 사진을 카메라로 찍어요."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F6D9D0",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -19,7 +24,20 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "backgroundColor": "#E7DDD2"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "초음파와 아기 사진을 우리 기록에 저장해요.",
+          "cameraPermission": "기록용 사진을 카메라로 찍어요."
+        }
+      ],
+      "expo-sharing",
+      "expo-video",
+      "expo-font"
+    ]
   }
 }
